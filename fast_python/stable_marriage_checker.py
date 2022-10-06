@@ -1,7 +1,8 @@
 import numpy as np
-from numba import jit, prange
+from numba import jit
+import pdb
 
-@jit(nopython=True, cache=True, parallel=True)
+@jit(nopython=True, cache=True)
 def check_stable_marriage(female_prefs, male_prefs, match):
     '''A function to check if your matching is stable.
 
@@ -26,52 +27,59 @@ def check_stable_marriage(female_prefs, male_prefs, match):
     man2_prefers_woman1 = 0
     man1_prefers_woman2 = 0
     assert nwomen==nmen
-    for woman1 in prange(nwomen):
+    for woman1 in range(nwomen):
         man1 = match[woman1]
         #only need to go up through woman1, else we consider duplicates
         #since the roles of (woman1, man1) and (woman2, man2) are symmetric
         for woman2 in range(woman1): 
             man2 = match[woman2]
+
+            #rezero these variables
+            woman1_prefers_man2 = 0
+            woman2_prefers_man1 = 0
+            man2_prefers_woman1 = 0
+            man1_prefers_woman2 = 0
+
             for male_pref in range(nwomen):
-                if female_prefs[woman1][male_pref] == man1: #woman1 prefers man1
+                if female_prefs[woman1,male_pref] == man1: #woman1 prefers man1
                     if woman1_prefers_man2 == 0:
-                        woman1_prefers_man2 == -1
+                        woman1_prefers_man2 = -1
                         if woman2_prefers_man1 != 0:
                             break
-                if female_prefs[woman1][male_pref] == man2: #woman1 prefers man2
+                if female_prefs[woman1,male_pref] == man2: #woman1 prefers man2
                      if woman1_prefers_man2 == 0:
-                        woman1_prefers_man2 == 1 
+                        woman1_prefers_man2 = 1 
                         if woman2_prefers_man1 != 0:
                             break
-                if female_prefs[woman2][male_pref] == man2: #woman2 prefers man2
+                if female_prefs[woman2,male_pref] == man2: #woman2 prefers man2
                      if woman2_prefers_man1 == 0:
-                        woman1_prefers_man2 == -1
+                        woman2_prefers_man1 = -1
                         if woman1_prefers_man2 != 0:
                             break
-                if female_prefs[woman2][male_pref] == man1: #woman2 prefers man1
+                if female_prefs[woman2,male_pref] == man1: #woman2 prefers man1
                      if woman2_prefers_man1 == 0:
-                        woman2_prefers_man1 == 1
+                        woman2_prefers_man1 = 1
                         if woman1_prefers_man2 != 0:
                             break
             for female_pref in range(nwomen):
-                if male_prefs[man1][female_pref] == woman1: #man1 prefers woman1
+                if male_prefs[man1,female_pref] == woman1: #man1 prefers woman1
                     if man1_prefers_woman2 == 0:
-                        woman1_prefers_man2 == -1
+                        man1_prefers_woman2 = -1
                         if man2_prefers_woman1 != 0:
                             break
-                if male_prefs[man1][female_pref] == woman2: #man1 prefers woman2
+                if male_prefs[man1,female_pref] == woman2: #man1 prefers woman2
                      if man1_prefers_woman2 == 0:
-                        man1_prefers_woman2 == 1 
+                        man1_prefers_woman2 = 1 
                         if man2_prefers_woman1 != 0:
                             break
-                if male_prefs[man2][female_pref] == woman2: #man2 prefers woman2
+                if male_prefs[man2,female_pref] == woman2: #man2 prefers woman2
                      if man2_prefers_woman1 == 0:
-                        man2_prefers_woman1 == -1
+                        man2_prefers_woman1 = -1
                         if man1_prefers_woman2 != 0:
                             break
-                if male_prefs[man2][female_pref] == woman1: #man2 prefers woman1
+                if male_prefs[man2,female_pref] == woman1: #man2 prefers woman1
                      if man2_prefers_woman1 == 0:
-                        man2_prefers_woman1 == 1
+                        man2_prefers_woman1 = 1
                         if man1_prefers_woman2 != 0:
                             break
             if woman1_prefers_man2==1 and man2_prefers_woman1==1:
@@ -79,10 +87,12 @@ def check_stable_marriage(female_prefs, male_prefs, match):
                 print("Unstable Pair!")
                 print(f"Woman {woman1} is matched to {man1} but prefers {man2}")
                 print(f"Man {man2} is matched to {woman2} but prefers {woman1}")
+                print("")
 
             if woman2_prefers_man1==1 and man1_prefers_woman2==1:
                 stable = False
                 print("Unstable Pair!")
                 print(f"Woman {woman2} is matched to {man2} but prefers {man1}")
                 print(f"Man {man1} is matched to {woman1} but prefers {woman2}")
+                print("")
     return stable
