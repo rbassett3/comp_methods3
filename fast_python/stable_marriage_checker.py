@@ -1,8 +1,7 @@
 import numpy as np
-from numba import jit
-import pdb
+from numba import jit, prange
 
-@jit(nopython=True, cache=True)
+@jit(nopython=True, cache=True, parallel=True)
 def check_stable_marriage(female_prefs, male_prefs, match):
     '''A function to check if your matching is stable.
 
@@ -21,20 +20,18 @@ def check_stable_marriage(female_prefs, male_prefs, match):
     nmen = male_prefs.shape[0]
     man1 = match[0]
     man2 = match[0]
-    #0 undecided, 1 means yes, -1 means no
-    woman1_prefers_man2 = 0
-    woman2_prefers_man1 = 0
-    man2_prefers_woman1 = 0
-    man1_prefers_woman2 = 0
     assert nwomen==nmen
-    for woman1 in range(nwomen):
+    #for woman1 in prange(nwomen): #could prange here instead, but I won't b/c
+    #the print statements are hard to parse when printed asynchronously
+    for woman1 in range(nwomen): 
         man1 = match[woman1]
         #only need to go up through woman1, else we consider duplicates
         #since the roles of (woman1, man1) and (woman2, man2) are symmetric
         for woman2 in range(woman1): 
             man2 = match[woman2]
 
-            #rezero these variables
+            #rezero these (thread local) variables
+            #0 undecided, 1 means yes, -1 means no
             woman1_prefers_man2 = 0
             woman2_prefers_man1 = 0
             man2_prefers_woman1 = 0
