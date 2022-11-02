@@ -1,0 +1,34 @@
+
+#pull any changes on the remote to your local copy of the repo
+git pull
+
+#stage files for commit by adding them
+git add path/to/your/file
+
+#commit all files currently staged for commit. Include a commit message summarizing your changes
+git commit -m "I'm adding some new files which fix a bunch of errors."
+
+#push any commits from local to remote
+git push
+
+#view a log of previous commits
+git log
+
+#checkout a previous commit
+git checkout [insert hash from git log]
+
+#go back to the most recent commit 
+git checkout -
+
+#who edited this file last
+git blame path/to/your/file
+
+#create and checkout a new branch (concise)
+git checkout -b my_new_branch_name
+
+#create and checkout a new branch (long form)
+git branch my_new_branch_name
+git checkout my_new_branch_name
+
+#print the status of the repo
+git status
